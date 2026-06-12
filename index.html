@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CareFlow Hospital | Smart Appointment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0f0f5 0%, #c8e2ed 100%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        /* main container */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .hospital-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hospital-header h1 {
+            font-size: 2.2rem;
+            color: #0b3b4f;
+            letter-spacing: -0.5px;
+            background: white;
+            display: inline-block;
+            padding: 0.6rem 2rem;
+            border-radius: 80px;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(2px);
+            font-weight: 700;
+        }
+
+        .hospital-header p {
+            color: #1e4a62;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* two column layout */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        /* form card */
+        .form-card {
+            flex: 1.2;
+            min-width: 320px;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            padding: 1.8rem 2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .appointments-card {
+            flex: 1.8;
+            min-width: 340px;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            padding: 1.8rem 2rem;
+        }
+
+        h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #0f4c5f;
+            border-left: 6px solid #2c9faf;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* form group */
+        .form-group {
+            margin-bottom: 1.3rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f5e74;
+            font-size: 0.9rem;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 0.8rem 1rem;
+            border-radius: 1.2rem;
+            border: 1.5px solid #cbdde4;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background-color: #fefefe;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2c9faf;
+            box-shadow: 0 0 0 3px rgba(44, 159, 175, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        /* inline row for small fields */
+        .row-2col {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .row-2col .form-group {
+            flex: 1;
+        }
+
+        /* error style */
+        .error-msg {
+            font-size: 0.75rem;
+            color: #d14545;
+            margin-top: 0.3rem;
+            margin-left: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        input.error-input,
+        select.error-input,
+        textarea.error-input {
+            border-color: #e25c5c;
+            background-color: #fff8f8;
+        }
+
+        /* button group */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        button {
+            font-weight: 600;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 3rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            background-color: #eef2f5;
+            color: #1f5e74;
+        }
+
+        button.primary-btn {
+            background-color: #1f7f8c;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        button.primary-btn:hover {
+            background-color: #0e6572;
+            transform: scale(0.98);
+        }
+
+        button.reset-btn {
+            background-color: #f0e2d0;
+            color: #aa6f3c;
+        }
+
+        button.reset-btn:hover {
+            background-color: #e6d2bb;
+        }
+
+        /* appointments list */
+        .appointments-list {
+            max-height: 520px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            padding-right: 0.5rem;
+        }
+
+        .appointment-item {
+            background: #f9fdfe;
+            border-radius: 1.5rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 8px solid #2c9faf;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+
+        .appointment-item strong {
+            color: #115f6b;
+            font-size: 1rem;
+        }
+
+        .appointment-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 0.5rem 0 0.4rem;
+            font-size: 0.9rem;
+            color: #2c3e44;
+        }
+
+        .badge {
+            background: #e2f0f3;
+            padding: 0.2rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            font-size: 0.8rem;
+            color: #c96b6b;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.4rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
+            background-color: #fee9e9;
+            transition: 0.1s;
+        }
+
+        .delete-btn:hover {
+            background-color: #fad1d1;
+            color: #b33b3b;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #7f9aa5;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        hr {
+            margin: 1rem 0;
+            border-color: #d0e2e9;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #245e6e;
+        }
+
+        .temp-success-msg {
+            background-color: #d9f0e6;
+            color: #0f5c4a;
+            padding: 0.6rem 1rem;
+            border-radius: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            text-align: center;
+            animation: fadeOut 2.2s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+
+            70% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @media (max-width: 780px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-card,
+            .appointments-card {
+                padding: 1.3rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="hospital-header">
+            <h1>🏥 CareFlow Hospital</h1>
+            <p>Smart appointment system | secure & reliable booking</p>
+        </div>
+
+        <div class="dashboard">
+            <!-- Appointment Booking Form -->
+            <div class="form-card">
+                <h2>📋 Book an Appointment</h2>
+                <form id="appointmentForm" novalidate>
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="patientName" placeholder="e.g. John Anderson" autocomplete="off">
+                        <div id="nameError" class="error-msg"></div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>Age * </label>
+                            <input type="number" id="patientAge" placeholder="e.g. 45" min="1" max="130" step="1">
+                            <div id="ageError" class="error-msg"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select id="gender">
+                                <option value="">-- Select --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div id="genderError" class="error-msg"></div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Phone Number field - 10 digit mobile number -->
+                    <div class="form-group">
+                        <label>Mobile Number * (10 digits)</label>
+                        <input type="tel" id="phoneNumber" placeholder="e.g. 9876543210" maxlength="10"
+                            inputmode="numeric">
+                        <div id="phoneError" class="error-msg"></div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>Appointment Date *</label>
+                            <input type="date" id="appDate">
+                            <div id="dateError" class="error-msg"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Department *</label>
+                            <select id="department">
+                                <option value="">-- Choose --</option>
+                                <option value="Cardiology">❤️ Cardiology</option>
+                                <option value="Neurology">🧠 Neurology</option>
+                                <option value="Pediatrics">👶 Pediatrics</option>
+                                <option value="Orthopedics">🦴 Orthopedics</option>
+                                <option value="General Medicine">🏥 General Medicine</option>
+                            </select>
+                            <div id="deptError" class="error-msg"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Symptoms / Note (Optional)</label>
+                        <textarea id="symptoms" placeholder="Brief symptoms or additional info..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="primary-btn" id="submitBtn">✅ Confirm Appointment</button>
+                        <button type="button" class="reset-btn" id="resetFormBtn">🗑️ Reset Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Appointments List Section -->
+            <div class="appointments-card">
+                <h2>📅 Upcoming Appointments</h2>
+                <div id="appointmentsListContainer" class="appointments-list">
+                    <!-- dynamic appointments will appear here -->
+                    <div class="empty-message">No appointments scheduled. Book your first slot!</div>
+                </div>
+                <hr>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button id="clearAllBtn" style="background:#f2e0df; color:#b75555;">🗑️ Clear All
+                        Appointments</button>
+                </div>
+            </div>
+        </div>
+        <footer>
+            ⚕️ Validation: Name (Uppercase start, no digits) | 10-digit mobile | Age 1-130 | Future date only
+        </footer>
+    </div>
+
+    <script>
+        // ---------- DOM Elements ----------
+        const form = document.getElementById('appointmentForm');
+        const nameInput = document.getElementById('patientName');
+        const ageInput = document.getElementById('patientAge');
+        const genderSelect = document.getElementById('gender');
+        const phoneInput = document.getElementById('phoneNumber');
+        const dateInput = document.getElementById('appDate');
+        const departmentSelect = document.getElementById('department');
+        const symptomsText = document.getElementById('symptoms');
+
+        // Error spans
+        const nameErrorDiv = document.getElementById('nameError');
+        const ageErrorDiv = document.getElementById('ageError');
+        const genderErrorDiv = document.getElementById('genderError');
+        const phoneErrorDiv = document.getElementById('phoneError');
+        const dateErrorDiv = document.getElementById('dateError');
+        const deptErrorDiv = document.getElementById('deptError');
+
+        const appointmentsContainer = document.getElementById('appointmentsListContainer');
+        const resetBtn = document.getElementById('resetFormBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+
+        // ---------- Data storage (in-memory) ----------
+        let appointments = [];   // each obj: { id, name, age, gender, phone, date, department, symptoms }
+
+        // Helper: generate unique id
+        function generateId() {
+            return Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+        }
+
+        // ---------- VALIDATION FUNCTIONS ----------
+        // 1. Name: starts with uppercase letter, no numbers anywhere, not empty.
+        function validateName(name) {
+            if (!name || name.trim() === "") {
+                return { valid: false, message: "Full name is required." };
+            }
+            const trimmed = name.trim();
+            // No digits allowed
+            if (/\d/.test(trimmed)) {
+                return { valid: false, message: "Name must not contain numbers." };
+            }
+            // First character must be uppercase A-Z, then letters/spaces/hyphens/apostrophes
+            const nameRegex = /^[A-Z][a-zA-Z\s\-']*$/;
+            if (!nameRegex.test(trimmed)) {
+                return { valid: false, message: "Name must start with an uppercase letter (e.g., 'John') and only letters, spaces, hyphens or apostrophes." };
+            }
+            return { valid: true, message: "" };
+        }
+
+        // Validate age: integer between 1 and 130 (strictly no negatives, no above 130)
+        function validateAge(ageStr) {
+            if (ageStr === undefined || ageStr === null || ageStr === "") {
+                return { valid: false, message: "Age is required." };
+            }
+            const ageNum = Number(ageStr);
+            if (isNaN(ageNum) || !Number.isInteger(ageNum)) {
+                return { valid: false, message: "Age must be a valid whole number." };
+            }
+            if (ageNum < 1) {
+                return { valid: false, message: "Age cannot be negative or zero. Minimum age is 1." };
+            }
+            if (ageNum > 130) {
+                return { valid: false, message: "Age cannot exceed 130 years." };
+            }
+            return { valid: true, message: "" };
+        }
+
+        // Gender selection
+        function validateGender(gender) {
+            if (!gender) return { valid: false, message: "Please select gender." };
+            return { valid: true, message: "" };
+        }
+
+        // Phone number validation: exactly 10 digits, only numeric
+        function validatePhone(phone) {
+            if (!phone || phone.trim() === "") {
+                return { valid: false, message: "Mobile number is required." };
+            }
+            const phoneStr = phone.trim();
+            // Must contain exactly 10 digits and nothing else (no spaces, letters, symbols)
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phoneStr)) {
+                return { valid: false, message: "Mobile number must be exactly 10 digits (0-9 only)." };
+            }
+            return { valid: true, message: "" };
+        }
+
+        // Date: not empty, must be today or future
+        function validateAppointmentDate(dateStr) {
+            if (!dateStr) return { valid: false, message: "Please select appointment date." };
+            const selectedDate = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selectedDate < today) {
+                return { valid: false, message: "Appointment date cannot be in the past." };
+            }
+            return { valid: true, message: "" };
+        }
+
+        // Department validation
+        function validateDepartment(dept) {
+            if (!dept) return { valid: false, message: "Please select a department." };
+            return { valid: true, message: "" };
+        }
+
+        // overall full validation and display dynamic error styles
+        function validateForm() {
+            let isValid = true;
+
+            // Name validation
+            const nameValid = validateName(nameInput.value);
+            if (!nameValid.valid) {
+                nameErrorDiv.innerHTML = `⚠️ ${nameValid.message}`;
+                nameInput.classList.add('error-input');
+                isValid = false;
+            } else {
+                nameErrorDiv.innerHTML = "";
+                nameInput.classList.remove('error-input');
+            }
+
+            // Age validation (1 to 130, no negative)
+            const ageValid = validateAge(ageInput.value);
+            if (!ageValid.valid) {
+                ageErrorDiv.innerHTML = `⚠️ ${ageValid.message}`;
+                ageInput.classList.add('error-input');
+                isValid = false;
+            } else {
+                ageErrorDiv.innerHTML = "";
+                ageInput.classList.remove('error-input');
+            }
+
+            // Gender
+            const genderValid = validateGender(genderSelect.value);
+            if (!genderValid.valid) {
+                genderErrorDiv.innerHTML = `⚠️ ${genderValid.message}`;
+                genderSelect.classList.add('error-input');
+                isValid = false;
+            } else {
+                genderErrorDiv.innerHTML = "";
+                genderSelect.classList.remove('error-input');
+            }
+
+            // Phone number (10 digit validation)
+            const phoneValid = validatePhone(phoneInput.value);
+            if (!phoneValid.valid) {
+                phoneErrorDiv.innerHTML = `⚠️ ${phoneValid.message}`;
+                phoneInput.classList.add('error-input');
+                isValid = false;
+            } else {
+                phoneErrorDiv.innerHTML = "";
+                phoneInput.classList.remove('error-input');
+            }
+
+            // Date
+            const dateValid = validateAppointmentDate(dateInput.value);
+            if (!dateValid.valid) {
+                dateErrorDiv.innerHTML = `⚠️ ${dateValid.message}`;
+                dateInput.classList.add('error-input');
+                isValid = false;
+            } else {
+                dateErrorDiv.innerHTML = "";
+                dateInput.classList.remove('error-input');
+            }
+
+            // Department
+            const deptValid = validateDepartment(departmentSelect.value);
+            if (!deptValid.valid) {
+                deptErrorDiv.innerHTML = `⚠️ ${deptValid.message}`;
+                departmentSelect.classList.add('error-input');
+                isValid = false;
+            } else {
+                deptErrorDiv.innerHTML = "";
+                departmentSelect.classList.remove('error-input');
+            }
+
+            return isValid;
+        }
+
+        // Clear all dynamic error styles and messages
+        function clearValidationStyles() {
+            nameErrorDiv.innerHTML = "";
+            ageErrorDiv.innerHTML = "";
+            genderErrorDiv.innerHTML = "";
+            phoneErrorDiv.innerHTML = "";
+            dateErrorDiv.innerHTML = "";
+            deptErrorDiv.innerHTML = "";
+            [nameInput, ageInput, genderSelect, phoneInput, dateInput, departmentSelect].forEach(field => {
+                field.classList.remove('error-input');
+            });
+        }
+
+        // ---------- Render appointments list (display phone number) ----------
+        function renderAppointments() {
+            if (!appointmentsContainer) return;
+            if (appointments.length === 0) {
+                appointmentsContainer.innerHTML = `<div class="empty-message">✨ No appointments scheduled. Book your first slot!</div>`;
+                return;
+            }
+
+            // sort by date (ascending)
+            const sortedAppointments = [...appointments].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let html = '';
+            sortedAppointments.forEach(apt => {
+                const formattedDate = new Date(apt.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                // format phone with masking for privacy? but we show full for demo (secure context)
+                const formattedPhone = apt.phone ? apt.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') : 'N/A';
+                html += `
+        <div class="appointment-item" data-id="${apt.id}">
+          <div><strong>👤 ${escapeHtml(apt.name)}</strong>  <span class="badge">${apt.gender}</span> <span class="badge">Age: ${apt.age}</span></div>
+          <div class="appointment-details">
+            <span>📞 ${formattedPhone}</span>
+            <span>📅 ${formattedDate}</span>
+            <span>🏥 ${apt.department}</span>
+          </div>
+          ${apt.symptoms ? `<div><span class="badge">📝 Notes: ${escapeHtml(apt.symptoms)}</span></div>` : ''}
+          <button class="delete-btn" data-id="${apt.id}">✖ Cancel Appointment</button>
+        </div>
+      `;
+            });
+            appointmentsContainer.innerHTML = html;
+
+            // attach delete event listeners
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    deleteAppointmentById(id);
+                });
+            });
+        }
+
+        // simple XSS prevention
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function deleteAppointmentById(id) {
+            appointments = appointments.filter(apt => apt.id !== id);
+            renderAppointments();
+            showTemporaryMessage("🗑️ Appointment cancelled.");
+        }
+
+        // ---------- Add new appointment from form (on submit) ----------
+        function addAppointmentFromForm() {
+            const isFormValid = validateForm();
+            if (!isFormValid) {
+                const firstError = document.querySelector('.error-input');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            const name = nameInput.value.trim();
+            const age = parseInt(ageInput.value, 10);
+            const gender = genderSelect.value;
+            const phone = phoneInput.value.trim();
+            const date = dateInput.value;
+            const department = departmentSelect.value;
+            const symptoms = symptomsText.value.trim();
+
+            // final name guard
+            const nameCheck = validateName(name);
+            if (!nameCheck.valid) {
+                nameErrorDiv.innerHTML = `⚠️ ${nameCheck.message}`;
+                nameInput.classList.add('error-input');
+                return false;
+            }
+
+            const newAppointment = {
+                id: generateId(),
+                name: name,
+                age: age,
+                gender: gender,
+                phone: phone,
+                date: date,
+                department: department,
+                symptoms: symptoms || ""
+            };
+
+            appointments.push(newAppointment);
+            renderAppointments();
+            resetFormFields();
+            clearValidationStyles();
+            showTemporaryMessage("✅ Appointment booked successfully! We'll contact you on " + formatPhoneDisplay(phone));
+            return true;
+        }
+
+        function formatPhoneDisplay(phone) {
+            if (phone && phone.length === 10) return phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+            return phone;
+        }
+
+        function showTemporaryMessage(msg) {
+            const existingMsg = document.querySelector('.temp-success-msg');
+            if (existingMsg) existingMsg.remove();
+            const div = document.createElement('div');
+            div.className = 'temp-success-msg';
+            div.innerText = msg;
+            const formCard = document.querySelector('.form-card');
+            formCard.insertBefore(div, formCard.firstChild);
+            setTimeout(() => {
+                if (div && div.remove) div.remove();
+            }, 2300);
+        }
+
+        // Reset the entire form fields AND clear validation errors
+        function resetFormFields() {
+            form.reset();
+            symptomsText.value = '';
+            // Ensure age placeholder attributes are kept
+            ageInput.value = '';
+            phoneInput.value = '';
+            // Reset selects to empty default
+            genderSelect.value = "";
+            departmentSelect.value = "";
+            clearValidationStyles();
+            const tempMsg = document.querySelector('.temp-success-msg');
+            if (tempMsg) tempMsg.remove();
+        }
+
+        // Clear all appointments (with confirmation)
+        function clearAllAppointments() {
+            if (appointments.length > 0) {
+                const confirmClear = confirm("⚠️ Are you sure you want to DELETE ALL appointments? This action cannot be undone.");
+                if (confirmClear) {
+                    appointments = [];
+                    renderAppointments();
+                    showTemporaryMessage("🗑️ All appointments have been cleared.");
+                }
+            } else {
+                showTemporaryMessage("📭 No appointments to clear.");
+            }
+        }
+
+        // ---------- Event Listeners (on-click, form submission, reset) ----------
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            addAppointmentFromForm();
+        });
+
+        resetBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            resetFormFields();
+            showTemporaryMessage("🧹 Form has been reset.");
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            clearAllAppointments();
+        });
+
+        // Optional: live phone validation to restrict non-digit & length, but still full validation on submit
+        phoneInput.addEventListener('input', (e) => {
+            // Allow only digits and limit to 10 characters
+            let val = phoneInput.value.replace(/\D/g, '');
+            if (val.length > 10) val = val.slice(0, 10);
+            phoneInput.value = val;
+            // Remove error while typing if it becomes potentially valid
+            if (val.length === 10) {
+                phoneErrorDiv.innerHTML = "";
+                phoneInput.classList.remove('error-input');
+            } else if (val.length > 0 && val.length !== 10) {
+                // but we don't show error aggressively until blur/submit; but we can clean later.
+            }
+        });
+
+        // live age restriction: cannot go negative or above 130 via UI enforcement
+        ageInput.addEventListener('change', () => {
+            let ageVal = parseInt(ageInput.value, 10);
+            if (!isNaN(ageVal)) {
+                if (ageVal < 1) ageInput.value = 1;
+                if (ageVal > 130) ageInput.value = 130;
+            }
+        });
+
+        ageInput.addEventListener('input', () => {
+            let ageVal = parseInt(ageInput.value, 10);
+            if (!isNaN(ageVal)) {
+                if (ageVal < 0) ageInput.value = 1;
+                if (ageVal > 130) ageInput.value = 130;
+            }
+            if (ageInput.value === '' || (ageVal >= 1 && ageVal <= 130)) {
+                ageErrorDiv.innerHTML = "";
+                ageInput.classList.remove('error-input');
+            }
+        });
+
+        nameInput.addEventListener('blur', () => {
+            const nameValid = validateName(nameInput.value);
+            if (!nameValid.valid && nameInput.value.trim() !== "") {
+                nameErrorDiv.innerHTML = `⚠️ ${nameValid.message}`;
+                nameInput.classList.add('error-input');
+            } else if (nameValid.valid) {
+                nameErrorDiv.innerHTML = "";
+                nameInput.classList.remove('error-input');
+            }
+        });
+
+        phoneInput.addEventListener('blur', () => {
+            const phoneValid = validatePhone(phoneInput.value);
+            if (!phoneValid.valid && phoneInput.value.trim() !== "") {
+                phoneErrorDiv.innerHTML = `⚠️ ${phoneValid.message}`;
+                phoneInput.classList.add('error-input');
+            } else if (phoneValid.valid) {
+                phoneErrorDiv.innerHTML = "";
+                phoneInput.classList.remove('error-input');
+            }
+        });
+
+        // initialize with sample data showcasing phone number and proper age
+        function initSampleAppointments() {
+            const today = new Date();
+            const nextWeek = new Date();
+            nextWeek.setDate(today.getDate() + 5);
+            const dateStr = nextWeek.toISOString().split('T')[0];
+            appointments.push({
+                id: generateId(),
+                name: "Olivia Bennett",
+                age: 34,
+                gender: "Female",
+                phone: "9988776655",
+                date: dateStr,
+                department: "Cardiology",
+                symptoms: "Chest discomfort, occasional palpitations"
+            });
+            const nextWeek2 = new Date();
+            nextWeek2.setDate(today.getDate() + 2);
+            appointments.push({
+                id: generateId(),
+                name: "Michael Sterling",
+                age: 58,
+                gender: "Male",
+                phone: "9876543210",
+                date: nextWeek2.toISOString().split('T')[0],
+                department: "Neurology",
+                symptoms: "Chronic headaches, memory lapses"
+            });
+            renderAppointments();
+        }
+
+        initSampleAppointments();
+    </script>
+</body>
+
+</html>
